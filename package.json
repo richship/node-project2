@@ -1,0 +1,21 @@
+{
+  "name": "node-project2",
+  "version": "0.0.0",
+  "description": "ERROR: No README.md file found!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD",
+  "dependencies": {
+    "coffee-script": "~1.6.3",
+    "express": "~3.4.8",
+    "grunt-contrib-coffee": "~0.8.2",
+    "grunt": "~0.4.2",
+    "stylus": "~0.42.1",
+    "jade": "~1.1.5",
+    "sequelize-sqlite": "~2.0.0-beta.2"
+  }
+}

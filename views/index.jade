@@ -1,0 +1,39 @@
+extends layout
+
+block content
+	div#datepicker
+
+	a(href='clients/create') Create
+
+	pre= JSON.stringify(clients, '\t', 2)
+
+	table.data
+		thead
+			tr
+				td Name
+		tbody
+			each client in clients
+				tr
+					td
+						a(href='clients/' + client.id)= client.name
+
+		script
+			:coffeescript
+				class ViewModel
+					client:
+						name: ko.observable('')
+
+					save: () =>
+						$.ajax '/clients/create', 
+								type: 'POST'
+								data: ko.mapping.toJS this.client
+							.done ->
+								window.location = '/clients'
+						return
+
+				$ ->
+					ko.applyBindings new ViewModel()
+
+					$('#datepicker')
+						.datepicker()
+

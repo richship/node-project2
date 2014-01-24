@@ -1,0 +1,24 @@
+extends layout
+
+block content
+
+	input(data-bind="value: client.name")
+
+	button(data-bind="click: save") Save
+
+	script
+		:coffeescript
+			class ViewModel
+				client:
+					name: ko.observable('')
+
+				save: () =>
+					$.ajax '/clients/create', 
+							type: 'POST'
+							data: ko.mapping.toJS this.client
+						.done ->
+							window.location = '/clients'
+					return
+
+			$ ->
+				ko.applyBindings new ViewModel()
