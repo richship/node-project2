@@ -1,70 +1,72 @@
 extends layout
 
 block content
-	div#datepicker
-
-	a(href='clients/create') Create
-
-	pre= JSON.stringify(clients, '\t', 2)
-
 	table.data
 		thead
 			tr
 				td Name
-		tbody
-			each client in clients
+		tbody(data-bind="foreach: { data: clients, afterAdd: function(element) { $(element).hide().show('highlight') } }")
 				tr
 					td
-						a(href='clients/' + client.id)= client.name
+						a(data-bind="attr: { href: 'clients/' + id }, text: name")
 
 	button(data-bind="click: newClient, disable: clientDialogOpen") Create new client
-	div(data-bind="dialog: { isOpen: clientDialogOpen }")
+	div(data-bind="dialog: { title: 'Add Client', isOpen: clientDialogOpen }")
 		div(data-bind="with: currentClient")
 			input(data-bind="value: name")
 			button(data-bind="click: $parent.saveClient") Save
 
-
-	script(type="text/html", id="edit-client-template")
-		div
-
-
 	script
 		:coffeescript
 			class ClientModel
+
 				name: ko.observable('')
 
-				contructor: (data) ->
+				constructor: (data) ->
 					ko.mapping.fromJS data || {}, {
 						include: [
 							'name'
 						]
 					}, this
 
-
-
 			class ViewModel
 				currentClient: ko.observable(null)
 				clientDialogOpen: ko.observable(false)
+				clients: ko.observableArray()
 
 				newClient: () ->
 					@currentClient(new ClientModel())
 					@clientDialogOpen(true)
 
-				constructor: () ->
+				clientAdded: (element, index, data) ->
+					console.log element
+					$(element).show('highlight')
 
+				constructor: (data) ->
+					ko.mapping.fromJS data || {}, {
+					}, this
 
 				saveClient: () =>
-					console.log this
 					$.ajax '/clients', 
 							type: 'POST'
 							data: ko.mapping.toJS @currentClient
-						.done =>
+						.done (data) =>
 							@clientDialogOpen(false)
+							@clients.push(data)
+
 					return
 
 			$ ->
-				ko.applyBindings new ViewModel()
+				viewModel = window.viewModel = new ViewModel()
+				
+				$.getJSON()
+					.done (data) ->
+						viewModel.clients(data)
+						# do this las, bug
+						ko.applyBindings viewModel
 
-				$('#datepicker')
-					.datepicker()
+				
+				
+
+				
 

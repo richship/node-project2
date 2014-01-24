@@ -10,17 +10,19 @@ module.exports =
 				next err
 
 	index: (req, res, next) ->
-		domain.Client.findAll()
-			.success (results) ->
-				res.render 'index', { clients: results }
-			.error (err) ->
-				next err
+		if req.xhr
+			domain.Client.findAll()
+				.success (results) ->
+						res.json results
+				.error (err) ->
+					next err
+		else
+			res.render 'index'
 
 	create: (req, res, next) ->
-		console.log res.body
 		domain.Client.create(req.body)
-			.success ->
-				res.send(200)
+			.success (client) ->
+				res.json client
 			.error ->
 				next err
 
