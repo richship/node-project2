@@ -17,23 +17,54 @@ block content
 					td
 						a(href='clients/' + client.id)= client.name
 
-		script
-			:coffeescript
-				class ViewModel
-					client:
-						name: ko.observable('')
+	button(data-bind="click: newClient, disable: clientDialogOpen") Create new client
+	div(data-bind="dialog: { isOpen: clientDialogOpen }")
+		div(data-bind="with: currentClient")
+			input(data-bind="value: name")
+			button(data-bind="click: $parent.saveClient") Save
 
-					save: () =>
-						$.ajax '/clients/create', 
-								type: 'POST'
-								data: ko.mapping.toJS this.client
-							.done ->
-								window.location = '/clients'
-						return
 
-				$ ->
-					ko.applyBindings new ViewModel()
+	script(type="text/html", id="edit-client-template")
+		div
 
-					$('#datepicker')
-						.datepicker()
+
+	script
+		:coffeescript
+			class ClientModel
+				name: ko.observable('')
+
+				contructor: (data) ->
+					ko.mapping.fromJS data || {}, {
+						include: [
+							'name'
+						]
+					}, this
+
+
+
+			class ViewModel
+				currentClient: ko.observable(null)
+				clientDialogOpen: ko.observable(false)
+
+				newClient: () ->
+					@currentClient(new ClientModel())
+					@clientDialogOpen(true)
+
+				constructor: () ->
+
+
+				saveClient: () =>
+					console.log this
+					$.ajax '/clients', 
+							type: 'POST'
+							data: ko.mapping.toJS @currentClient
+						.done =>
+							@clientDialogOpen(false)
+					return
+
+			$ ->
+				ko.applyBindings new ViewModel()
+
+				$('#datepicker')
+					.datepicker()
 
