@@ -26,7 +26,9 @@ clientController = require './controllers/client'
 app.get('/clients', clientController.index)
 app.param(':clientid', clientController.lookup)
 app.post('/clients', clientController.create)
-app.get('/clients/:clientid', clientController.view)
+app.get('/clients/:clientid', clientController.get)
+app.get('/transactions', clientController.transactionsView)
+app.post('/transactions', clientController.transactions)
 
 http.createServer(app).listen app.get('port'), ->
 	console.log('Express server listening on port ' + app.get('port'))

@@ -26,7 +26,15 @@ module.exports =
 			.error ->
 				next err
 
-	view: (req, res) ->
-		console.log 'client:'
-		console.log req.client
-		res.render 'view', req.client
+	transactionsView: (req, res) -> res.render 'transactions'
+
+	transactions: (req, res, next) ->
+		domain.transaction.findAll()
+			.success (results) -> res.json results
+			.error (err) -> next err
+
+	get: (req, res) ->
+		if req.xhr
+			res.json req.client
+		else
+			res.render 'view', req.client

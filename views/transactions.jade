@@ -1,0 +1,88 @@
+extends layout
+
+block content
+
+	table.data(style="width: 100%;")
+		thead
+			tr
+				td Date
+				td From
+				td To
+				td Amount
+				td
+		tbody(data-bind="template: { name: function(item){ return (currentEditRow() && currentEditRow().id === item.id) ? 'editRow-template' : 'viewRow-template'; }, foreach: transactions }")
+
+
+	script(type="text/html", id="viewRow-template")
+		tr
+			td(data-bind="text: date")
+			td(data-bind="text: from")
+			td(data-bind="text: to")
+			td(data-bind="text: amount")
+			td
+				button(type="button", data-bind="click: $parent.edit, disable: $parent.currentEditRow()") Edit
+
+	script(type="text/html", id="editRow-template")
+		tr
+			td
+				input(data-bind="value: date")
+			td
+				input(data-bind="value: from")
+			td
+				input(data-bind="value: to")
+			td
+				input(data-bind="value: amount")
+			td
+				button(type="button", data-bind="click: $parent.save") Save
+
+	script
+		:coffeescript
+			class ViewModel
+				transactions: ko.observableArray()
+				currentEditRow: ko.observable()
+
+				constructor: (data) ->
+					ko.mapping.fromJS data, {
+						transactions:
+							create: (options) ->
+								$.extend {
+									date: '',
+									from: '',
+									to: '',
+									amount: 0
+								}, options.data
+					}, this
+
+				edit: (transaction) =>
+					@currentEditRow(new EditTransactionModel(transaction))
+
+				save: (transaction) =>
+					dataToSave = ko.mapping.toJS transaction
+					# do some ajax call here
+					@transactions().forEach (item) ->
+						if item.id == dataToSave.id
+							$.extend item, dataToSave
+					@currentEditRow(null)
+
+
+
+
+			class EditTransactionModel
+				id: ''
+				amount: ko.observable()
+				from: ko.observable()
+				to: ko.observable()
+				data: ko.observable()
+
+				constructor: (data) ->
+					ko.mapping.fromJS data, null, this
+
+
+			$ ->
+				viewModel = window.viewModel = new ViewModel
+					transactions: [
+						{ id: '1', from: 'one' }
+						{ id: '2', from: 'two' }
+						{ id: '3', from: 'three' }
+					]
+				ko.applyBindings viewModel
