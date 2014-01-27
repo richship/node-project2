@@ -15,15 +15,15 @@ block content
 
 	script(type="text/html", id="viewRow-template")
 		tr
-			td(data-bind="text: date")
-			td(data-bind="text: from")
-			td(data-bind="text: to")
-			td(data-bind="text: amount")
-			td
+			td(style="width: 20%;", data-bind="text: date")
+			td(style="width: 20%;", data-bind="text: from")
+			td(style="width: 20%;", data-bind="text: to")
+			td(style="width: 20%;", data-bind="text: amount")
+			td(style="width: 20%;")
 				button(type="button", data-bind="click: $parent.edit, disable: $parent.currentEditRow()") Edit
 
 	script(type="text/html", id="editRow-template")
-		tr
+		tr(data-bind="with: $root.currentEditRow")
 			td
 				input(data-bind="value: date")
 			td
@@ -33,7 +33,8 @@ block content
 			td
 				input(data-bind="value: amount")
 			td
-				button(type="button", data-bind="click: $parent.save") Save
+				button(type="button", data-bind="click: $root.cancelEdit") Cancel
+				button(type="button", data-bind="click: $root.save") Save
 
 	script
 		:coffeescript
@@ -62,8 +63,12 @@ block content
 					@transactions().forEach (item) ->
 						if item.id == dataToSave.id
 							$.extend item, dataToSave
+					console.log 'test1'
 					@currentEditRow(null)
 
+				cancelEdit: () =>
+					console.log 'test2'
+					@currentEditRow(null)
 
 
 

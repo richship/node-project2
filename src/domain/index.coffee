@@ -1,27 +1,27 @@
 db = require './database'
 dbtypes = require('sequelize-sqlite').sequelize
 
-Provider = db.define 'Provider',
+provider = db.define 'provider',
 		name: dbtypes.STRING
 		state: dbtypes.STRING
 
-Payer = db.define 'Payer',
+payer = db.define 'payer',
 	name: dbtypes.STRING
 
-Client = db.define 'Client',
+client = db.define 'client',
 	name: dbtypes.STRING
 	
-ClientPayers =  db.define 'ClientPayers',
+clientPayers =  db.define 'clientpayers',
 	type: dbtypes.STRING
 
 #Payer.hasMany(Client, { through: ClientPayers })
 #Client.hasMany(Payer, { through: ClientPayers })
 
 module.exports =
-	Client: Client
-	Payer: Payer
-	ClientPayers: ClientPayers
-	Provider: Provider
+	client: client
+	payer: payer
+	clientPayers: clientPayers
+	provider: provider
 
 #auto-create tables
 db.sync()

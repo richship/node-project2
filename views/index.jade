@@ -1,72 +1,105 @@
 extends layout
 
 block content
-	table.data
+
+	table.data(style="")
 		thead
 			tr
 				td Name
-		tbody(data-bind="foreach: { data: clients, afterAdd: function(element) { $(element).hide().show('highlight') } }")
-				tr
-					td
-						a(data-bind="attr: { href: 'clients/' + id }, text: name")
+				td
+		tbody(data-bind="template: { name: function(item){ return (currentEditRow() && currentEditRow().id === item.id) ? 'editRow-template' : 'viewRow-template'; }, foreach: clients }")
 
-	button(data-bind="click: newClient, disable: clientDialogOpen") Create new client
-	div(data-bind="dialog: { title: 'Add Client', isOpen: clientDialogOpen }")
-		div(data-bind="with: currentClient")
-			input(data-bind="value: name")
-			button(data-bind="click: $parent.saveClient") Save
+	script(type="text/html", id="viewRow-template")
+		tr
+			td(style="", data-bind="text: name")
+			td(style="")
+				button(type="button", data-bind="click: $parent.edit, disable: $parent.currentEditRow") Edit
 
+	script(type="text/html", id="editRow-template")
+		tr(data-bind="with: $root.currentEditRow")
+			td
+				input(data-bind="value: name")
+			td
+				button(type="button", data-bind="click: $root.cancelEdit") Cancel
+				button(type="button", data-bind="click: $root.saveClient") Save
+
+	button(data-bind="click: newClient, disable: $root.currentEditRow") Create new client
+	
 	script
 		:coffeescript
-			class ClientModel
-
-				name: ko.observable('')
-
+			class EditClientModel
 				constructor: (data) ->
-					ko.mapping.fromJS data || {}, {
+					@id = null
+					@name = ko.observable()
+
+					ko.mapping.fromJS (data || {}), {
 						include: [
+							'id'
 							'name'
 						]
 					}, this
 
+				getData: =>
+					ko.mapping.toJS this,
+						include: [ 'name' ]
+
 			class ViewModel
-				currentClient: ko.observable(null)
-				clientDialogOpen: ko.observable(false)
-				clients: ko.observableArray()
-
-				newClient: () ->
-					@currentClient(new ClientModel())
-					@clientDialogOpen(true)
-
-				clientAdded: (element, index, data) ->
-					console.log element
-					$(element).show('highlight')
+				newClient: () =>
+					model = new EditClientModel({ id: 'new' })
+					@currentEditRow(model)
+					@clients.push(ko.mapping.toJS(model))
 
 				constructor: (data) ->
-					ko.mapping.fromJS data || {}, {
+					@clients = ko.observableArray()
+					@currentEditRow = ko.observable()
+
+					ko.mapping.fromJS (data || {}), {
+						clients:
+							create: (options) ->
+								$.extend {
+									id: null
+									name: ''
+								}, options.data
 					}, this
 
+				edit: (data) =>
+					@currentEditRow(new EditClientModel(data))
+
+				cancelEdit: =>
+					@clients().forEach (item) =>
+						if item.id == 'new'
+							@clients.remove(item)
+					@currentEditRow(null)
+
 				saveClient: () =>
-					$.ajax '/clients', 
-							type: 'POST'
-							data: ko.mapping.toJS @currentClient
-						.done (data) =>
-							@clientDialogOpen(false)
-							@clients.push(data)
+					data = @currentEditRow().getData()
+
+					url = 
+						if data.id && data.id != 'new'
+							'/clients/' + data.id
+						else
+							'/clients'
+
+					delete data.id if data.id is 'new'
+
+					$.ajax url, 
+						type: 'POST'
+						dataType: 'json'
+						data: data
+					.done (data) =>
+						@clients().forEach (item) ->
+							if item.id == data.id || item.id == 'new'
+								$.extend item, data
+						@currentEditRow(null)
 
 					return
+
+			window.EditClientModel = EditClientModel
 
 			$ ->
 				viewModel = window.viewModel = new ViewModel()
 				
-				$.getJSON()
+				$.getJSON('/clients')
 					.done (data) ->
 						viewModel.clients(data)
-						# do this las, bug
 						ko.applyBindings viewModel
-
-				
-				
-
-				
-

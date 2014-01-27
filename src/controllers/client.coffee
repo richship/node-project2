@@ -1,37 +1,46 @@
 domain = require '../domain'
 
+jsonfor = (res, onError, action) ->
+	action()
+		.success (data) -> res.json data
+
 module.exports =
+
 	lookup: (req, res, next, id) ->
-		domain.Client.find(id)
+		domain.client.find(id)
 			.success (client) ->
 				req.client = client
 				next()
-			.error (err) ->
-				next err
+			.error next
 
-	index: (req, res, next) ->
-		if req.xhr
-			domain.Client.findAll()
-				.success (results) ->
-						res.json results
-				.error (err) ->
-					next err
-		else
-			res.render 'index'
+	get: (req, res) -> res.json req.client
+
+	index: (req, res) -> res.render 'index'
+
+
+	list: (req, res, next) ->
+		jsonfor res, next, ->
+			domain.client.findAll()
 
 	create: (req, res, next) ->
-		domain.Client.create(req.body)
-			.success (client) ->
-				res.json client
-			.error ->
-				next err
+		if req.body.id
+			next new Error 'id included in create'
+		else
+			domain.client.create(req.body)
+				.success (data) ->
+					res.json data
+				.error (error) ->
+					next error
+
+	edit: (req, res, next) ->
+		console.log req.body
+		domain.client.find(req.body.id)
+			.success (existingRecord) ->
+				existingRecord.updateAttributes(req.body)
+					.success -> res.json existingRecord
+
 
 	transactionsView: (req, res) -> res.render 'transactions'
-
-	transactions: (req, res, next) ->
-		domain.transaction.findAll()
-			.success (results) -> res.json results
-			.error (err) -> next err
 
 	get: (req, res) ->
 		if req.xhr
