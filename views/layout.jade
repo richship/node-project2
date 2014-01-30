@@ -2,6 +2,7 @@ doctype html
 html
 	head
 		title Title!
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
 		script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
 		script(src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js")
 		script(src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js")
@@ -9,11 +10,26 @@ html
 		script(src="scripts/jquery-ui-1.10.4.custom.min.js")
 		script(src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js")
 		script(src="scripts/knockout-jqueryui.min.js")
+		script(src="bootstrap/js/bootstrap.min.js")
 
-		link(rel='stylesheet', href='/main.css')
-		link(rel='stylesheet', href='/themes/ui-darkness/jquery-ui-1.10.4.custom.css')
+		
+		link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
+		link(rel='stylesheet', href='/bootstrap/css/bootstrap-theme.min.css')
 			
 	body
-		h1 the Application
+		nav.navbar.navbar-default.navbar-fixed-top.navbar-inverse(role="navigation")
+			.navbar-header
+				button.navbar-toggle(data-toggle="collapse", data-target="#bs-example-navbar-collapse-1")
+					span.icon-bar
+					span.icon-bar
+					span.icon-bar
+				a.navbar-brand(href="#") NodeWeasel
 
-		block content
+			.collapse.navbar-collapse#bs-example-navbar-collapse-1
+				ul.nav.navbar-nav
+					li: a(href="#") Link1
+					li: a(href="#") Link2
+					li: a(href="#") Link3
+
+		div.container(style="padding-top: 70px;")
+			block content

@@ -2,28 +2,28 @@ extends layout
 
 block content
 
-	table.data(style="")
+	table.table.table-striped.table-hover(style="")
 		thead
 			tr
-				td Name
-				td
+				th Name
+				th
 		tbody(data-bind="template: { name: function(item){ return (currentEditRow() && currentEditRow().id === item.id) ? 'editRow-template' : 'viewRow-template'; }, foreach: clients }")
 
 	script(type="text/html", id="viewRow-template")
 		tr
 			td(style="", data-bind="text: name")
 			td(style="")
-				button(type="button", data-bind="click: $parent.edit, disable: $parent.currentEditRow") Edit
+				button.btn(type="button", data-bind="click: $parent.edit, disable: $parent.currentEditRow") Edit
 
 	script(type="text/html", id="editRow-template")
 		tr(data-bind="with: $root.currentEditRow")
 			td
-				input(data-bind="value: name")
+				input.form-control(data-bind="value: name")
 			td
-				button(type="button", data-bind="click: $root.cancelEdit") Cancel
-				button(type="button", data-bind="click: $root.saveClient") Save
+				button.btn(type="button", data-bind="click: $root.cancelEdit") Cancel
+				button.btn.btn-primary(type="button", data-bind="click: $root.saveClient") Save
 
-	button(data-bind="click: newClient, disable: $root.currentEditRow") Create new client
+	button.btn.btn-success(data-bind="click: newClient, disable: $root.currentEditRow") Create new client
 	
 	script
 		:coffeescript
