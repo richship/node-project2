@@ -29,15 +29,13 @@ module.exports =
 			domain.client.create(req.body)
 				.success (data) ->
 					res.json data
-				.error (error) ->
-					next error
+				.error (err) ->
+					next err
 
 	edit: (req, res, next) ->
-		console.log req.body
-		domain.client.find(req.body.id)
-			.success (existingRecord) ->
-				existingRecord.updateAttributes(req.body)
-					.success -> res.json existingRecord
+		req.client.updateAttributes(req.body)
+			.success (data) ->
+				res.json data
 
 
 	transactionsView: (req, res) -> res.render 'transactions'
